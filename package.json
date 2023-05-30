@@ -6,7 +6,8 @@
   "scripts": {
     "scrape": "node ./dist/index.js",
     "parse2Csv": "node ./dist/parse2Csv.js",
-    "data": "node ./dist/data.js"
+    "data": "node ./dist/data.js",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

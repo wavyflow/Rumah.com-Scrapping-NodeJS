@@ -8,6 +8,7 @@ Aplikasi sederhana untuk melakukan scrapping dari web rumah.com yang dapat diexp
 git clone https://github.com/wavyflow/Rumah.com-Scrapping-NodeJS.git
 cd Rumah.com-Scrapping-NodeJS
 npm ci
+npm run build
 npm run scrape # Scrape Data
 npm run parse2Csv # Export to CSV
 ```
