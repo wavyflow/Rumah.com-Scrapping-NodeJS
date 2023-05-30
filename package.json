@@ -1,0 +1,43 @@
+{
+  "name": "rumah-com-scrapping-nodejs",
+  "version": "1.0.0",
+  "description": "Rumah.com-Scrapping-NodeJS",
+  "main": "dist/index.js",
+  "scripts": {
+    "scrape": "node ./dist/index.js",
+    "parse2Csv": "node ./dist/parse2Csv.js",
+    "data": "node ./dist/data.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wavyflow/Rumah.com-Scrapping-NodeJS.git"
+  },
+  "keywords": [
+    "Scraping"
+  ],
+  "author": "Ashary Vermaysha",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wavyflow/Rumah.com-Scrapping-NodeJS/issues"
+  },
+  "homepage": "https://github.com/wavyflow/Rumah.com-Scrapping-NodeJS#readme",
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.0",
+    "@types/node": "^18.15.11",
+    "@types/random-useragent": "^0.3.1",
+    "tsx": "^3.12.6",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "acebase": "^1.27.0",
+    "cheerio": "^1.0.0-rc.12",
+    "cli-progress": "^3.12.0",
+    "csv-writer": "^1.6.0",
+    "enquirer": "^2.3.6",
+    "puppeteer": "^20.4.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "random-useragent": "^0.5.0"
+  }
+}
