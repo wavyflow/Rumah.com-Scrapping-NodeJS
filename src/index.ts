@@ -32,10 +32,6 @@ function validateUrl(url: string): boolean {
 }
 
 async function main(url: string, multibar: cliProgress.MultiBar) {
-  if (await db.query("finished-page").filter("url", "==", url).exists()) {
-    return false;
-  }
-
   const content = await Scrape.crawl(url);
 
   if (!content) {
@@ -75,6 +71,7 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
 
   for (const val of links) {
     b1.increment();
+
     if (!val.link) {
       return null;
     }
@@ -85,7 +82,7 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
       return false;
     }
 
-    const content = await Scrape.crawl(val.link, "body");
+    const content = await Scrape.crawl(val.link, ".navbar-brand");
 
     if (!content) {
       return null;
@@ -141,12 +138,6 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
   }
 
   b1.stop();
-
-  await db.ref(`finished-page`).push({
-    url,
-    hash: md5(url),
-  });
-
   return true;
 }
 
@@ -206,5 +197,7 @@ async function getMaxPage(url: string) {
 
       await Scrape.close();
     });
-  } catch {}
+  } catch (e) {
+    console.error(e)
+  }
 })();
