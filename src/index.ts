@@ -85,7 +85,7 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
       return false;
     }
 
-    const content = await Scrape.crawl(val.link, ".property-info");
+    const content = await Scrape.crawl(val.link, "body");
 
     if (!content) {
       return null;
