@@ -82,7 +82,7 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
       return false;
     }
 
-    const content = await Scrape.crawl(val.link, ".navbar-brand");
+    const content = await Scrape.crawl(val.link, "#contextual-navigation");
 
     if (!content) {
       return null;
