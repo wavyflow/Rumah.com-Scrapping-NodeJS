@@ -59,7 +59,7 @@ export class Scrape {
 
         await this.page.goto(url, {
             timeout: 0,
-            waitUntil: 'networkidle2'
+            waitUntil: 'networkidle0'
         })
         await this.page.waitForFunction('document.querySelector("body")')
         await this.page.waitForSelector(waitForSelector)
