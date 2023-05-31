@@ -7,7 +7,9 @@
     "scrape": "node ./dist/index.js",
     "parse2Csv": "node ./dist/parse2Csv.js",
     "data": "node ./dist/data.js",
-    "clear:cache": "node ./dist/clearCache.ts",
+    "data:rumah": "node ./dist/getRumah.js",
+    "clear:cache": "node ./dist/clearCache.js",
+    "clear:data": "node ./dist/clearData.js",
     "build": "tsc"
   },
   "repository": {
