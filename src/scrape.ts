@@ -61,7 +61,7 @@ export class Scrape {
             timeout: 0,
             waitUntil: 'networkidle2'
         })
-        await this.page.waitForFunction('document.querySelector("body")')
+        await this.page.waitForFunction(`document.querySelector("${waitForSelector}")`)
         await this.page.waitForSelector(waitForSelector)
 
         const content = await this.page.content()

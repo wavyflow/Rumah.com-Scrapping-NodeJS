@@ -114,7 +114,7 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
           .text()
           .trim()
           .match(/([A-Z])\w+([9-9]\d{2,}|[1-9]\d{3,})(\s)?([w,k,w,a])/i)?.[0] ??
-          "",
+          '900',
         10
       ) ??
       900;
