@@ -6,4 +6,10 @@ db.ready(async () => {
   if (rumah.exists()) {
     console.log(rumah.val())
   }
+
+  const lastPage = await db.ref("finished-page/last-page").get();
+
+  if (lastPage.exists()) {
+    console.log(lastPage.val())
+  }
 });
