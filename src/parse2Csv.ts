@@ -1,8 +1,10 @@
 import { createObjectCsvWriter } from "csv-writer";
 import { db } from "./database";
 import { closeSync, openSync } from "fs";
+import { parseCurrency } from "./parseCurrency";
+import { getNumber } from "./getNumber";
 
-const path = `./csv-${(new Date()).getTime()}.csv`;
+const path = `./csv/csv-${(new Date()).getTime()}.csv`;
 
 const writer = createObjectCsvWriter({
     encoding: 'utf8',
@@ -34,6 +36,10 @@ const writer = createObjectCsvWriter({
             title: 'Jumlah Tempat Parkir',
         },
         {
+            id: 'lantai',
+            title: 'Jumlah Lantai'
+        },
+        {
             id: 'listrik',
             title: 'Daya Listrik (KWh)',
         },
@@ -41,11 +47,21 @@ const writer = createObjectCsvWriter({
 })
 
 db.ready(async() => {
-    const rumahRef = db.ref('rumah').get()
-    const rumah = (await rumahRef).exists() ? (await rumahRef).val() : null
+    const rumahRef = await db.ref('rumah').get()
+    const rumah = rumahRef.exists() ? rumahRef.val() : null
 
-    const records = Object.keys(rumah).map((val) => {
+    const records: any[] = Object.keys(rumah).map((val) => {
+        // rumah[val].harga != undefined && rumah[val].harga != '' && rumah[val].harga.includes('Rp') == false
+        if (rumah[val].harga == undefined && (rumah[val].harga == '' && rumah[val].harga.includes('Rp') == false)) {
+            return;
+        }
+
+        rumah[val].harga = parseCurrency(rumah[val].harga)
+        rumah[val].luasBangunan = getNumber(rumah[val].luasBangunan)
+        rumah[val].luasTanah = getNumber(rumah[val].luasTanah)
         return rumah[val]
+    }).filter((val) => {
+        return val != undefined
     })
 
     // Make empty file
