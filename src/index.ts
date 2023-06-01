@@ -8,13 +8,15 @@ import cliProgress from "cli-progress";
 import { db } from "./database";
 
 interface ScrappedData {
-  harga: number;
-  luasTanah: number;
-  luasBangunan: number;
+  harga: string;
+  luasTanah: string;
+  luasBangunan: string;
   kamarTidur: number;
   kamarMandi: number;
   tempatParkir: number;
   listrik: number;
+  sertifikat: string,
+  lantai: number
 }
 
 function modifyPath(url: string, newPath: string): string {
@@ -65,13 +67,7 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
       return el != null;
     });
 
-  const b1 = multibar.create(links.length, 0, {
-    name: md5(url),
-  });
-
   for (const val of links) {
-    b1.increment();
-
     if (!val.link) {
       return null;
     }
@@ -90,34 +86,45 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
 
     const $ = cheerio.load(content);
 
-    const harga = parseCurrency($(".amount").text().trim()) ?? 0;
-    const kamarTidur = getNumber($(".amenity:eq(0)").text().trim()) ?? 0;
-    const kamarMandi = getNumber($(".amenity:eq(1)").text().trim()) ?? 0;
-    const luasTanah = getNumber($(".amenity:eq(2)").text().trim()) ?? 0;
-    const luasBangunan =
-      getNumber(
-        $('.meta-table__item__label:icontains("Luas Bangunan")').next().text()
-      ) ?? 0;
-    const tempatParkir =
-      getNumber(
-        $('.meta-table__item__label:icontains("Tempat Parkir")')
-          .next()
-          .text()
-          .trim()
-      ) ?? 0;
+    const harga = $("h2.amount").text().trim() ?? 0;
+    const kamarTidur = getNumber($("div.amenity:eq(0)").text().trim()) ?? 0;
+    const kamarMandi = getNumber($("div.amenity:eq(1)").text().trim()) ?? 0;
+    const luasTanah = $("div.amenity:eq(2)").text().trim();
+    const luasBangunan = $(
+      '.meta-table__item__label:icontains("Luas Bangunan")'
+    )
+      .next()
+      .text();
+    const tempatParkir = getNumber($(
+      '.meta-table__item__label:icontains("Tempat Parkir")'
+    )
+      .next()
+      .text()
+      .trim()) ?? 0;
     const listrik =
       getNumber(
-        $('.meta-table__item__label:icontains("Listrik")').next().text().trim()
-      ) ??
-      parseInt(
-        $(".description")
+        $('.meta-table__item__label:icontains("Listrik")')
+          .next()
           .text()
-          .trim()
-          .match(/([A-Z])\w+([9-9]\d{2,}|[1-9]\d{3,})(\s)?([w,k,w,a])/i)?.[0] ??
-          '900',
-        10
-      ) ??
-      900;
+          .trim() ??
+          $(".description")
+            .text()
+            .trim()
+            .match(/([A-Z])\w+([9-9]\d{2,}|[1-9]\d{3,})(\s)?([w,k,w,a])/i)?.[0] ?? '0'
+      ) ?? 0;
+
+    const sertifikat = $(
+      '.meta-table__item__label:icontains("Sertifikat")'
+    )
+      .next()
+      .text()
+      .trim()
+
+      const lantai = getNumber($(".description")
+      .text()
+      .trim()
+      .match(/([1-5]\,[0-9])\s*[l]/i)?.[0] ?? '1'
+) ?? 1
 
     const scrapped: ScrappedData = {
       harga,
@@ -127,7 +134,11 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
       kamarMandi,
       tempatParkir,
       listrik,
+      sertifikat,
+      lantai,
     };
+
+    console.log(scrapped);
 
     await db.ref(`rumah/${val.dataId}`).update(scrapped);
 
@@ -136,8 +147,6 @@ async function main(url: string, multibar: cliProgress.MultiBar) {
       hash: md5(val.link),
     });
   }
-
-  b1.stop();
   return true;
 }
 
@@ -184,13 +193,21 @@ async function getMaxPage(url: string) {
         cliProgress.Presets.legacy
       );
 
-      const b1 = multibar.create(maxPage, 0, {
+      const startIndex = parseInt(
+        response.url.match(/properti-dijual\/(\d+)/)?.[1] ?? "1",
+        10
+      );
+
+      const b1 = multibar.create(maxPage, startIndex, {
         name: "main",
       });
 
-      for (let i = 1; i <= maxPage; i++) {
-        b1.increment();
+      for (let i = startIndex; i <= maxPage; i++) {
+        await db.ref("finished-page/last-page").update({
+          val: i,
+        });
         await main(modifyPath(response.url, i.toString()), multibar);
+        b1.increment();
       }
 
       multibar.stop();
@@ -198,6 +215,6 @@ async function getMaxPage(url: string) {
       await Scrape.close();
     });
   } catch (e) {
-    console.error(e)
+    console.error(e);
   }
 })();
