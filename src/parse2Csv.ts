@@ -31,20 +31,43 @@ const writer = createObjectCsvWriter({
             id: 'kamarMandi',
             title: 'Jumlah Kamar Mandi',
         },
-        {
-            id: 'tempatParkir',
-            title: 'Jumlah Tempat Parkir',
-        },
-        {
-            id: 'lantai',
-            title: 'Jumlah Lantai'
-        },
+        // {
+        //     id: 'tempatParkir',
+        //     title: 'Jumlah Tempat Parkir',
+        // },
+        // {
+        //     id: 'lantai',
+        //     title: 'Jumlah Lantai'
+        // },
         {
             id: 'listrik',
             title: 'Daya Listrik (KWh)',
         },
     ]
 })
+
+function convertCurrencyToNumber(currency: string): number {
+    const regex = /^Rp\s*([\d.,]+)\s*(jt|M)?$/i;
+    const match = currency.match(regex);
+  
+    if (match) {
+      const amount = match[1].replace(/,/g, '');
+      const unit = match[2];
+  
+      let multiplier = 1;
+  
+      if (unit === 'jt') {
+        multiplier = 1e6; // 1 juta
+      } else if (unit === 'M') {
+        multiplier = 1e9; // 1 miliar
+      }
+  
+      return parseFloat(amount) * multiplier;
+    }
+  
+    return 0;
+  }
+  
 
 db.ready(async() => {
     const rumahRef = await db.ref('rumah').get()
@@ -56,9 +79,19 @@ db.ready(async() => {
             return;
         }
 
-        rumah[val].harga = parseCurrency(rumah[val].harga)
+        rumah[val].harga = convertCurrencyToNumber(rumah[val].harga)
+
+        if (rumah[val].harga < 1) {
+            return undefined
+        }
+
         rumah[val].luasBangunan = getNumber(rumah[val].luasBangunan)
         rumah[val].luasTanah = getNumber(rumah[val].luasTanah)
+
+        if (rumah[val].luasBangunan >= rumah[val].luasTanah) {
+            return undefined
+        }
+
         return rumah[val]
     }).filter((val) => {
         return val != undefined
